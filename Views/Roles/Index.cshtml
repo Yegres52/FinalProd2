@@ -9,7 +9,15 @@
     <ul>
         @foreach (var role in Model)
         {
-            <li><strong>@role.Name</strong>@if (!string.IsNullOrWhiteSpace(role.Description)) { <span>: @role.Description</span> }</li>
+            <li>
+                <strong>@role.Name</strong>@if (!string.IsNullOrWhiteSpace(role.Description)) { <span>: @role.Description</span> }
+                @if (role.Name != Blog.Services.RoleNames.Admin &&
+                     role.Name != Blog.Services.RoleNames.Moderator &&
+                     role.Name != Blog.Services.RoleNames.User)
+                {
+                    <a asp-action="Edit" asp-route-id="@role.Id">Редактировать</a>
+                }
+            </li>
         }
     </ul>
 </section>
