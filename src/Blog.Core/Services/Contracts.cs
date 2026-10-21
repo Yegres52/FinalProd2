@@ -39,6 +39,8 @@ public record SavePostRequest(
 
 public record PostResponse(int Id, string Title, string Content, DateTime CreatedAtUtc, string AuthorId);
 
+public record PostEditResponse(int Id, string Title, string Content, string AuthorId, int[] TagIds);
+
 public record SaveTagRequest([Required, StringLength(50)] string Name);
 public record TagResponse(int Id, string Name, string? CreatorId);
 

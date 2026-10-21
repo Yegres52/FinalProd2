@@ -20,6 +20,18 @@ public class PostService(ApplicationDbContext db) : IPostService
                 post.CreatedAtUtc, post.AuthorId))
             .FirstOrDefaultAsync();
 
+    public async Task<OperationResult<PostEditResponse>> GetForEditAsync(int id, ActorContext actor)
+    {
+        var post = await db.Posts.AsNoTracking().Where(post => post.Id == id)
+            .Select(post => new PostEditResponse(post.Id, post.Title, post.Content,
+                post.AuthorId, post.PostTags.Select(postTag => postTag.TagId).ToArray()))
+            .FirstOrDefaultAsync();
+        if (post is null) return OperationResult<PostEditResponse>.Fail(OperationStatus.NotFound);
+        if (post.AuthorId != actor.Id && !actor.IsAdmin && !actor.IsModerator)
+            return OperationResult<PostEditResponse>.Fail(OperationStatus.Forbidden);
+        return OperationResult<PostEditResponse>.Ok(post);
+    }
+
     public async Task<OperationResult<PostResponse>> CreateAsync(SavePostRequest request, ActorContext actor)
     {
         if (actor.IsModerator && !actor.IsAdmin)

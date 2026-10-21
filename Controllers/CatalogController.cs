@@ -53,6 +53,60 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
         return View(input);
     }
 
+    [HttpGet]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.Moderator + "," + RoleNames.User)]
+    public async Task<IActionResult> EditPost(int id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+
+        var result = await posts.GetForEditAsync(id, actor);
+        if (result.Status == OperationStatus.NotFound) return NotFound();
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+
+        var post = result.Value!;
+        return View(new EditPostInput
+        {
+            Id = post.Id,
+            Title = post.Title,
+            Content = post.Content,
+            TagIds = post.TagIds.ToList(),
+            AvailableTags = await tags.GetAllAsync()
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.Moderator + "," + RoleNames.User)]
+    public async Task<IActionResult> EditPost(int id, EditPostInput input)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+
+        var current = await posts.GetForEditAsync(id, actor);
+        if (current.Status == OperationStatus.NotFound) return NotFound();
+        if (current.Status == OperationStatus.Forbidden) return Forbid();
+
+        input.Id = id;
+        if (!ModelState.IsValid)
+        {
+            input.AvailableTags = await tags.GetAllAsync();
+            return View(input);
+        }
+
+        var request = new SavePostRequest(input.Title, input.Content, input.TagIds.ToArray());
+        var result = await posts.UpdateAsync(id, request, actor);
+        if (result.Status == OperationStatus.Success)
+            return RedirectToAction(nameof(Post), new { id });
+        if (result.Status == OperationStatus.NotFound) return NotFound();
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+
+        foreach (var error in result.Errors ?? ["Не удалось сохранить статью."])
+            ModelState.AddModelError(string.Empty, error);
+        input.AvailableTags = await tags.GetAllAsync();
+        return View(input);
+    }
+
     public async Task<IActionResult> Tags() => View(await tags.GetAllAsync());
 
     [HttpGet]
@@ -122,5 +176,12 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
         foreach (var error in result.Errors ?? ["Не удалось сохранить тег."])
             ModelState.AddModelError(nameof(input.Name), error);
         return View(input);
+    }
+
+    private ActorContext? GetActor()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return userId is null ? null : new ActorContext(userId,
+            User.IsInRole(RoleNames.Admin), User.IsInRole(RoleNames.Moderator));
     }
 }

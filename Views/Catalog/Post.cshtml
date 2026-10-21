@@ -1,4 +1,5 @@
 @model Blog.Services.PostResponse
+@using System.Security.Claims
 @{
     ViewData["Title"] = Model.Title;
 }
@@ -8,4 +9,11 @@
     <h1>@Model.Title</h1>
     <p class="text-muted">@Model.CreatedAtUtc.ToString("dd.MM.yyyy")</p>
     <p>@Model.Content</p>
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+         User.IsInRole(Blog.Services.RoleNames.Moderator) ||
+         (User.IsInRole(Blog.Services.RoleNames.User) &&
+          Model.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+    {
+        <p><a asp-action="EditPost" asp-route-id="@Model.Id">Редактировать</a></p>
+    }
 </article>

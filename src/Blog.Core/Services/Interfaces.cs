@@ -14,6 +14,7 @@ public interface IPostService
 {
     Task<IReadOnlyList<PostResponse>> GetAllAsync(string? authorId);
     Task<PostResponse?> GetByIdAsync(int id);
+    Task<OperationResult<PostEditResponse>> GetForEditAsync(int id, ActorContext actor);
     Task<OperationResult<PostResponse>> CreateAsync(SavePostRequest request, ActorContext actor);
     Task<OperationResult<PostResponse>> UpdateAsync(int id, SavePostRequest request, ActorContext actor);
     Task<OperationResult<bool>> DeleteAsync(int id, ActorContext actor);
