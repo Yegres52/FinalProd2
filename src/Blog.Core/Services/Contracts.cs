@@ -25,7 +25,8 @@ public record UserResponse(string Id, string? UserName, string[] Roles);
 
 public record SavePostRequest(
     [Required, StringLength(200)] string Title,
-    [Required] string Content);
+    [Required] string Content,
+    int[]? TagIds = null);
 
 public record PostResponse(int Id, string Title, string Content, DateTime CreatedAtUtc, string AuthorId);
 

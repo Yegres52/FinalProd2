@@ -24,12 +24,17 @@ public class PostService(ApplicationDbContext db) : IPostService
     {
         if (actor.IsModerator && !actor.IsAdmin)
             return OperationResult<PostResponse>.Fail(OperationStatus.Forbidden);
+        var tagIds = request.TagIds?.Distinct().ToArray() ?? [];
+        if (!await TagsExistAsync(tagIds))
+            return OperationResult<PostResponse>.Fail(OperationStatus.Invalid, "Выбран несуществующий тег.");
+
         var post = new Post
         {
             Title = request.Title.Trim(),
             Content = request.Content.Trim(),
             AuthorId = actor.Id,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            PostTags = tagIds.Select(tagId => new PostTag { TagId = tagId }).ToList()
         };
         db.Posts.Add(post);
         await db.SaveChangesAsync();
@@ -43,8 +48,20 @@ public class PostService(ApplicationDbContext db) : IPostService
         if (post.AuthorId != actor.Id && !actor.IsAdmin && !actor.IsModerator)
             return OperationResult<PostResponse>.Fail(OperationStatus.Forbidden);
 
+        var tagIds = request.TagIds?.Distinct().ToArray();
+        if (tagIds is not null && !await TagsExistAsync(tagIds))
+            return OperationResult<PostResponse>.Fail(OperationStatus.Invalid, "Выбран несуществующий тег.");
+
         post.Title = request.Title.Trim();
         post.Content = request.Content.Trim();
+        if (tagIds is not null)
+        {
+            var existing = await db.PostTags.Where(postTag => postTag.PostId == id).ToListAsync();
+            db.PostTags.RemoveRange(existing.Where(postTag => !tagIds.Contains(postTag.TagId)));
+            var existingIds = existing.Select(postTag => postTag.TagId).ToHashSet();
+            foreach (var tagId in tagIds.Where(tagId => !existingIds.Contains(tagId)))
+                db.PostTags.Add(new PostTag { PostId = id, TagId = tagId });
+        }
         await db.SaveChangesAsync();
         return OperationResult<PostResponse>.Ok(Map(post));
     }
@@ -63,4 +80,8 @@ public class PostService(ApplicationDbContext db) : IPostService
 
     private static PostResponse Map(Post post) =>
         new(post.Id, post.Title, post.Content, post.CreatedAtUtc, post.AuthorId);
+
+    private async Task<bool> TagsExistAsync(int[] tagIds) =>
+        tagIds.Length == 0 ||
+        await db.Tags.CountAsync(tag => tagIds.Contains(tag.Id)) == tagIds.Length;
 }

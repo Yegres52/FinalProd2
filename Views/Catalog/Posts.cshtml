@@ -6,6 +6,11 @@
 <section class="container py-5">
     <h1 class="mb-4">Статьи</h1>
 
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) || User.IsInRole(Blog.Services.RoleNames.User))
+    {
+        <p><a asp-action="CreatePost">Добавить статью</a></p>
+    }
+
     @if (Model.Count == 0)
     {
         <p>Статей пока нет.</p>
