@@ -14,6 +14,18 @@ public class PostService(ApplicationDbContext db) : IPostService
                 post.CreatedAtUtc, post.AuthorId))
             .ToListAsync();
 
+    public async Task<IReadOnlyList<PostListResponse>> GetAllForCatalogAsync(int? tagId) =>
+        await db.Posts.AsNoTracking()
+            .Where(post => tagId == null ||
+                post.PostTags.Any(postTag => postTag.TagId == tagId.Value))
+            .OrderByDescending(post => post.CreatedAtUtc)
+            .Select(post => new PostListResponse(post.Id, post.Title, post.Content,
+                post.CreatedAtUtc, post.AuthorId,
+                post.PostTags.OrderBy(postTag => postTag.Tag.Name)
+                    .Select(postTag => new PostTagLinkResponse(postTag.TagId, postTag.Tag.Name))
+                    .ToArray()))
+            .ToListAsync();
+
     public async Task<IReadOnlyList<PostResponse>> GetByTagAsync(int tagId) =>
         await db.Posts.AsNoTracking()
             .Where(post => post.PostTags.Any(postTag => postTag.TagId == tagId))

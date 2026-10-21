@@ -14,6 +14,7 @@ public interface IUserService
 public interface IPostService
 {
     Task<IReadOnlyList<PostResponse>> GetAllAsync(string? authorId);
+    Task<IReadOnlyList<PostListResponse>> GetAllForCatalogAsync(int? tagId);
     Task<IReadOnlyList<PostResponse>> GetByTagAsync(int tagId);
     Task<PostResponse?> GetByIdAsync(int id);
     Task<OperationResult<PostEditResponse>> GetForEditAsync(int id, ActorContext actor);

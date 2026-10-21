@@ -45,6 +45,12 @@ public record PostResponse(int Id, string Title, string Content, DateTime Create
 
 public record PostEditResponse(int Id, string Title, string Content, string AuthorId, int[] TagIds);
 
+public record PostTagLinkResponse(int Id, string Name);
+
+public record PostListResponse(
+    int Id, string Title, string Content, DateTime CreatedAtUtc,
+    string AuthorId, PostTagLinkResponse[] Tags);
+
 public record SaveTagRequest([Required, StringLength(50)] string Name);
 public record TagResponse(int Id, string Name, string? CreatorId);
 public record TagListResponse(int Id, string Name, string? CreatorId, int PostCount);

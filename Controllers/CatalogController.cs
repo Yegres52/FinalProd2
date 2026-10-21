@@ -10,13 +10,14 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
 {
     public async Task<IActionResult> Posts(int? tagId)
     {
-        if (tagId is null) return View(await posts.GetAllAsync(null));
+        if (tagId is not null)
+        {
+            var tag = await tags.GetByIdAsync(tagId.Value);
+            if (tag is null) return NotFound();
+            ViewData["TagName"] = tag.Name;
+        }
 
-        var tag = await tags.GetByIdAsync(tagId.Value);
-        if (tag is null) return NotFound();
-
-        ViewData["TagName"] = tag.Name;
-        return View(await posts.GetByTagAsync(tag.Id));
+        return View(await posts.GetAllForCatalogAsync(tagId));
     }
 
     public async Task<IActionResult> Post(int id)

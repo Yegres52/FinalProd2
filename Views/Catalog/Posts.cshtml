@@ -1,4 +1,4 @@
-@model IReadOnlyList<Blog.Services.PostResponse>
+@model IReadOnlyList<Blog.Services.PostListResponse>
 @{
     ViewData["Title"] = "Статьи";
 }
@@ -11,7 +11,7 @@
     }
     else
     {
-        <h1 class="mb-4">Статьи</h1>
+        <h1 class="mb-4">Все статьи</h1>
     }
 
     @if (User.IsInRole(Blog.Services.RoleNames.Admin) || User.IsInRole(Blog.Services.RoleNames.User))
@@ -32,6 +32,15 @@
                     <article class="card h-100">
                         <div class="card-body">
                             <h2 class="h5"><a asp-action="Post" asp-route-id="@post.Id">@post.Title</a></h2>
+                            @if (post.Tags.Length > 0)
+                            {
+                                <div class="mb-2">
+                                    @foreach (var tag in post.Tags)
+                                    {
+                                        <a class="badge badge-info mr-1" asp-action="Posts" asp-route-tagId="@tag.Id">@tag.Name</a>
+                                    }
+                                </div>
+                            }
                             <p class="text-muted small">@post.CreatedAtUtc.ToString("dd.MM.yyyy")</p>
                             <p>@(post.Content.Length > 160 ? post.Content[..160] + "…" : post.Content)</p>
                             <a asp-action="Post" asp-route-id="@post.Id">Читать</a>
