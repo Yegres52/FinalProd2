@@ -32,7 +32,9 @@ public class UserService(
         var user = new ApplicationUser
         {
             UserName = request.UserName.Trim(),
-            Email = request.Email.Trim()
+            Email = request.Email.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim()
         };
 
         var created = await users.CreateAsync(user, request.Password);

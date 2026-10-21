@@ -13,7 +13,9 @@ public record OperationResult<T>(OperationStatus Status, T? Value = default, str
 public record RegisterUserRequest(
     [Required, StringLength(256)] string UserName,
     [Required, EmailAddress] string Email,
-    [Required, MinLength(6)] string Password);
+    [Required, MinLength(6)] string Password,
+    [Required, StringLength(100)] string FirstName,
+    [Required, StringLength(100)] string LastName);
 
 public record UpdateUserRequest(
     [Required, StringLength(256)] string UserName,

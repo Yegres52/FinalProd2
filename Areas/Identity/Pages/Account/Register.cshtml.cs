@@ -20,6 +20,12 @@ public class RegisterModel(
         [Required, StringLength(256)]
         public string UserName { get; set; } = string.Empty;
 
+        [Required, StringLength(100)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required, StringLength(100)]
+        public string LastName { get; set; } = string.Empty;
+
         [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
 
@@ -37,7 +43,8 @@ public class RegisterModel(
         if (!ModelState.IsValid) return Page();
 
         var result = await users.RegisterAsync(
-            new RegisterUserRequest(Input.UserName, Input.Email, Input.Password));
+            new RegisterUserRequest(Input.UserName, Input.Email, Input.Password,
+                Input.FirstName, Input.LastName));
         if (result.Status != OperationStatus.Success)
         {
             foreach (var error in result.Errors ?? [])
