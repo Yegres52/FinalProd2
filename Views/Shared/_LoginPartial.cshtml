@@ -1,11 +1,20 @@
 @using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @using Blog.Models
 @inject SignInManager<ApplicationUser> SignInManager
 
 <div class="d-flex align-items-center">
 @if (SignInManager.IsSignedIn(User))
 {
-        <span class="mr-3">@User.Identity?.Name</span>
+        @if (!User.IsInRole(Blog.Services.RoleNames.Moderator) || User.IsInRole(Blog.Services.RoleNames.Admin))
+        {
+            <a class="mr-3" asp-area="" asp-controller="Accounts" asp-action="Edit"
+               asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">@User.Identity?.Name</a>
+        }
+        else
+        {
+            <span class="mr-3">@User.Identity?.Name</span>
+        }
         <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="mb-0">
             <button type="submit" class="btn btn-outline-primary btn-sm">Выйти</button>
         </form>

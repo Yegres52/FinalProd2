@@ -4,6 +4,7 @@ public interface IUserService
 {
     Task<IReadOnlyList<UserResponse>> GetAllAsync();
     Task<UserResponse?> GetByIdAsync(string id);
+    Task<OperationResult<UserEditResponse>> GetForEditAsync(string id, ActorContext actor);
     Task<OperationResult<UserResponse>> RegisterAsync(RegisterUserRequest request);
     Task<OperationResult<UserResponse>> UpdateAsync(string id, UpdateUserRequest request, ActorContext actor);
     Task<OperationResult<bool>> DeleteAsync(string id, ActorContext actor);

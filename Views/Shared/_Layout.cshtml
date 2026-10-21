@@ -19,7 +19,8 @@
                 <a class="mr-3" asp-area="" asp-controller="Catalog" asp-action="Tags">Теги</a>
                 @if (User.IsInRole(Blog.Services.RoleNames.Admin))
                 {
-                    <a asp-area="" asp-controller="Roles" asp-action="Index">Роли</a>
+                    <a class="mr-3" asp-area="" asp-controller="Roles" asp-action="Index">Роли</a>
+                    <a asp-area="" asp-controller="Accounts" asp-action="Index">Пользователи</a>
                 }
             </nav>
         </div>

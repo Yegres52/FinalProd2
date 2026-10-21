@@ -1,0 +1,18 @@
+@model IReadOnlyList<Blog.Services.UserResponse>
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<section class="container py-5">
+    <h1 class="mb-4">Пользователи</h1>
+    @if (TempData["Success"] is string message)
+    {
+        <p class="text-success">@message</p>
+    }
+    <ul>
+        @foreach (var user in Model)
+        {
+            <li><a asp-action="Edit" asp-route-id="@user.Id">@user.UserName</a></li>
+        }
+    </ul>
+</section>

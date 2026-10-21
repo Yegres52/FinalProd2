@@ -27,6 +27,20 @@ public class UserService(
         return user is null ? null : Map(user);
     }
 
+    public async Task<OperationResult<UserEditResponse>> GetForEditAsync(string id, ActorContext actor)
+    {
+        if (actor.IsModerator && !actor.IsAdmin || id != actor.Id && !actor.IsAdmin)
+            return OperationResult<UserEditResponse>.Fail(OperationStatus.Forbidden);
+
+        var user = await users.FindByIdAsync(id);
+        if (user is null)
+            return OperationResult<UserEditResponse>.Fail(OperationStatus.NotFound);
+
+        return OperationResult<UserEditResponse>.Ok(new UserEditResponse(
+            user.Id, user.UserName, user.Email, user.FirstName, user.LastName,
+            (await users.GetRolesAsync(user)).ToArray()));
+    }
+
     public async Task<OperationResult<UserResponse>> RegisterAsync(RegisterUserRequest request)
     {
         var user = new ApplicationUser
@@ -67,16 +81,108 @@ public class UserService(
             return OperationResult<UserResponse>.Fail(OperationStatus.Forbidden);
         if (id != actor.Id && !actor.IsAdmin)
             return OperationResult<UserResponse>.Fail(OperationStatus.Forbidden);
+        if (request.Roles is not null && !actor.IsAdmin)
+            return OperationResult<UserResponse>.Fail(OperationStatus.Forbidden);
+
         var user = await users.FindByIdAsync(id);
         if (user is null) return OperationResult<UserResponse>.Fail(OperationStatus.NotFound);
 
+        var currentRoles = await users.GetRolesAsync(user);
+        string[]? desiredRoles = null;
+        if (request.Roles is not null)
+        {
+            desiredRoles = request.Roles
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            // A user's base role cannot be removed through the edit form or API.
+            if (currentRoles.Contains(UserRole, StringComparer.OrdinalIgnoreCase) &&
+                !desiredRoles.Contains(UserRole, StringComparer.OrdinalIgnoreCase))
+                desiredRoles = [.. desiredRoles, UserRole];
+
+            if (desiredRoles.Length == 0)
+                return OperationResult<UserResponse>.Fail(OperationStatus.Invalid,
+                    "У пользователя должна остаться хотя бы одна роль.");
+
+            foreach (var roleName in desiredRoles)
+                if (!await roles.RoleExistsAsync(roleName))
+                    return OperationResult<UserResponse>.Fail(OperationStatus.Invalid,
+                        $"Роль «{roleName}» не существует.");
+
+            if (currentRoles.Contains(RoleNames.Admin, StringComparer.OrdinalIgnoreCase) &&
+                !desiredRoles.Contains(RoleNames.Admin, StringComparer.OrdinalIgnoreCase))
+            {
+                var adminRole = await roles.FindByNameAsync(RoleNames.Admin);
+                if (adminRole is not null &&
+                    await db.UserRoles.CountAsync(userRole => userRole.RoleId == adminRole.Id) <= 1)
+                    return OperationResult<UserResponse>.Fail(OperationStatus.Invalid,
+                        "Нельзя снять роль с последнего администратора.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.NewPassword) &&
+            (id == actor.Id || !actor.IsAdmin) &&
+            string.IsNullOrEmpty(request.CurrentPassword))
+            return OperationResult<UserResponse>.Fail(OperationStatus.Invalid,
+                "Введите текущий пароль.");
+
+        await using var transaction = await db.Database.BeginTransactionAsync();
+
         user.UserName = request.UserName.Trim();
         user.Email = request.Email.Trim();
+        if (request.FirstName is not null)
+            user.FirstName = request.FirstName.Trim();
+        if (request.LastName is not null)
+            user.LastName = request.LastName.Trim();
         var updated = await users.UpdateAsync(user);
-        return updated.Succeeded
-            ? OperationResult<UserResponse>.Ok(new UserResponse(user.Id, user.UserName,
-                (await users.GetRolesAsync(user)).ToArray()))
-            : OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(updated));
+        if (!updated.Succeeded)
+            return OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(updated));
+
+        if (!string.IsNullOrWhiteSpace(request.NewPassword))
+        {
+            IdentityResult passwordResult;
+            if (actor.IsAdmin && id != actor.Id)
+            {
+                var token = await users.GeneratePasswordResetTokenAsync(user);
+                passwordResult = await users.ResetPasswordAsync(user, token, request.NewPassword);
+            }
+            else
+            {
+                passwordResult = await users.ChangePasswordAsync(
+                    user, request.CurrentPassword!, request.NewPassword);
+            }
+
+            if (!passwordResult.Succeeded)
+                return OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(passwordResult));
+        }
+
+        if (desiredRoles is not null)
+        {
+            var removed = await users.RemoveFromRolesAsync(user,
+                currentRoles.Except(desiredRoles, StringComparer.OrdinalIgnoreCase));
+            if (!removed.Succeeded)
+                return OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(removed));
+
+            var added = await users.AddToRolesAsync(user,
+                desiredRoles.Except(currentRoles, StringComparer.OrdinalIgnoreCase));
+            if (!added.Succeeded)
+                return OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(added));
+
+            if (!currentRoles.Order(StringComparer.OrdinalIgnoreCase)
+                    .SequenceEqual(desiredRoles.Order(StringComparer.OrdinalIgnoreCase),
+                        StringComparer.OrdinalIgnoreCase))
+            {
+                var stamp = await users.UpdateSecurityStampAsync(user);
+                if (!stamp.Succeeded)
+                    return OperationResult<UserResponse>.Fail(OperationStatus.Invalid, Errors(stamp));
+            }
+        }
+
+        await transaction.CommitAsync();
+        return OperationResult<UserResponse>.Ok(new UserResponse(user.Id, user.UserName,
+            (await users.GetRolesAsync(user)).ToArray()));
     }
 
     public async Task<OperationResult<bool>> DeleteAsync(string id, ActorContext actor)

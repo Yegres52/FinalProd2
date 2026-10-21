@@ -19,9 +19,18 @@ public record RegisterUserRequest(
 
 public record UpdateUserRequest(
     [Required, StringLength(256)] string UserName,
-    [Required, EmailAddress] string Email);
+    [Required, EmailAddress] string Email,
+    [StringLength(100)] string? FirstName = null,
+    [StringLength(100)] string? LastName = null,
+    string? CurrentPassword = null,
+    string? NewPassword = null,
+    string[]? Roles = null);
 
 public record UserResponse(string Id, string? UserName, string[] Roles);
+
+public record UserEditResponse(
+    string Id, string? UserName, string? Email,
+    string? FirstName, string? LastName, string[] Roles);
 
 public record SavePostRequest(
     [Required, StringLength(200)] string Title,
