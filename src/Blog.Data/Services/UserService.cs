@@ -19,6 +19,19 @@ public class UserService(
             .ToListAsync())
             .Select(Map).ToList();
 
+    public async Task<IReadOnlyList<UserListResponse>> GetAllForAdminAsync() =>
+        (await db.Users.AsNoTracking()
+            .Include(user => user.UserRoles).ThenInclude(userRole => userRole.Role)
+            .OrderBy(user => user.UserName)
+            .ToListAsync())
+            .Select(user => new UserListResponse(
+                user.Id, user.UserName, user.FirstName, user.LastName, user.Email,
+                user.UserRoles.Select(userRole => userRole.Role.Name!)
+                    .Where(name => name is not null)
+                    .OrderBy(name => name)
+                    .ToArray()))
+            .ToList();
+
     public async Task<UserResponse?> GetByIdAsync(string id)
     {
         var user = await db.Users.AsNoTracking()

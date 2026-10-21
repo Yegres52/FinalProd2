@@ -28,6 +28,10 @@ public record UpdateUserRequest(
 
 public record UserResponse(string Id, string? UserName, string[] Roles);
 
+public record UserListResponse(
+    string Id, string? UserName, string? FirstName, string? LastName,
+    string? Email, string[] Roles);
+
 public record UserEditResponse(
     string Id, string? UserName, string? Email,
     string? FirstName, string? LastName, string[] Roles);

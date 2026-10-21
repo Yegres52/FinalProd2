@@ -17,7 +17,7 @@ public class AccountsController(
     SignInManager<ApplicationUser> signInManager) : Controller
 {
     [Authorize(Roles = RoleNames.Admin)]
-    public async Task<IActionResult> Index() => View(await users.GetAllAsync());
+    public async Task<IActionResult> Index() => View(await users.GetAllForAdminAsync());
 
     [HttpGet]
     public async Task<IActionResult> Edit(string id)

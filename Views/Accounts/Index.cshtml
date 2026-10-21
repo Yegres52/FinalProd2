@@ -1,18 +1,49 @@
-@model IReadOnlyList<Blog.Services.UserResponse>
+@model IReadOnlyList<Blog.Services.UserListResponse>
 @{
     ViewData["Title"] = "Пользователи";
 }
 
 <section class="container py-5">
-    <h1 class="mb-4">Пользователи</h1>
+    <h1 class="mb-4">Все пользователи</h1>
     @if (TempData["Success"] is string message)
     {
         <p class="text-success">@message</p>
     }
-    <ul>
-        @foreach (var user in Model)
-        {
-            <li><a asp-action="Edit" asp-route-id="@user.Id">@user.UserName</a></li>
-        }
-    </ul>
+    @if (Model.Count == 0)
+    {
+        <p>Пользователей пока нет.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var user in Model)
+            {
+                var fullName = string.Join(" ", new[] { user.LastName, user.FirstName }
+                    .Where(part => !string.IsNullOrWhiteSpace(part)));
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="h5 card-title mb-2">
+                                <a asp-action="Edit" asp-route-id="@user.Id">@(fullName.Length > 0 ? fullName : user.UserName)</a>
+                            </h2>
+                            @if (fullName.Length > 0 && !string.IsNullOrWhiteSpace(user.UserName))
+                            {
+                                <p class="text-muted small mb-2">@user.UserName</p>
+                            }
+                            <div class="mb-3">
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge badge-info mr-1">@role</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(user.Email))
+                            {
+                                <p class="text-muted mb-0">@user.Email</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </section>

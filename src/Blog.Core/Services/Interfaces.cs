@@ -3,6 +3,7 @@ namespace Blog.Services;
 public interface IUserService
 {
     Task<IReadOnlyList<UserResponse>> GetAllAsync();
+    Task<IReadOnlyList<UserListResponse>> GetAllForAdminAsync();
     Task<UserResponse?> GetByIdAsync(string id);
     Task<OperationResult<UserEditResponse>> GetForEditAsync(string id, ActorContext actor);
     Task<OperationResult<UserResponse>> RegisterAsync(RegisterUserRequest request);
