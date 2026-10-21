@@ -17,9 +17,9 @@
                 <a class="mr-3" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                 <a class="mr-3" asp-area="" asp-controller="Catalog" asp-action="Posts">Статьи</a>
                 <a class="mr-3" asp-area="" asp-controller="Catalog" asp-action="Tags">Теги</a>
-                <a class="mr-3" asp-area="" asp-controller="Discussion" asp-action="Index">Комментарии</a>
                 @if (User.IsInRole(Blog.Services.RoleNames.Admin))
                 {
+                    <a class="mr-3" asp-area="" asp-controller="Discussion" asp-action="Index">Комментарии</a>
                     <a class="mr-3" asp-area="" asp-controller="Roles" asp-action="Index">Роли</a>
                     <a asp-area="" asp-controller="Accounts" asp-action="Index">Пользователи</a>
                 }
