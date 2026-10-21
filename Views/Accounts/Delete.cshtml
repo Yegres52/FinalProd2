@@ -1,0 +1,12 @@
+@model Blog.Services.UserEditResponse
+@{ ViewData["Title"] = "Удаление пользователя"; }
+
+<section class="container py-5">
+    <h1 class="mb-4">Удаление пользователя</h1>
+    <p>Удалить пользователя «@Model.UserName»?</p>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a class="ml-3" asp-action="Details" asp-route-id="@Model.Id">Отмена</a>
+    </form>
+</section>

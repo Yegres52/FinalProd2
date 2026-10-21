@@ -1,0 +1,18 @@
+@model Blog.ViewModels.CreateUserInput
+@{ ViewData["Title"] = "Добавление пользователя"; }
+
+<section class="container py-5">
+    <div class="row justify-content-center"><div class="col-md-6">
+        <h1 class="h2 mb-4">Добавление пользователя</h1>
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div class="form-group"><label asp-for="UserName">Логин</label><input asp-for="UserName" class="form-control" /></div>
+            <div class="form-group"><label asp-for="FirstName">Имя</label><input asp-for="FirstName" class="form-control" /></div>
+            <div class="form-group"><label asp-for="LastName">Фамилия</label><input asp-for="LastName" class="form-control" /></div>
+            <div class="form-group"><label asp-for="Email">Почта</label><input asp-for="Email" class="form-control" type="email" /></div>
+            <div class="form-group"><label asp-for="Password">Пароль</label><input asp-for="Password" class="form-control" type="password" /></div>
+            <button class="btn btn-primary" type="submit">Добавить</button>
+        </form>
+        <p class="mt-4"><a asp-action="Index">К списку пользователей</a></p>
+    </div></div>
+</section>

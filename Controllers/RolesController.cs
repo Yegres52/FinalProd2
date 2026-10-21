@@ -15,6 +15,43 @@ public class RolesController(RoleManager<ApplicationRole> roles) : Controller
         View(await roles.Roles.AsNoTracking().OrderBy(role => role.Name).ToListAsync());
 
     [HttpGet]
+    public async Task<IActionResult> Details(string id)
+    {
+        var role = await roles.FindByIdAsync(id);
+        return role is null ? NotFound() : View(role);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var role = await roles.FindByIdAsync(id);
+        if (role is null) return NotFound();
+        return IsStandardRole(role.Name) ? Forbid() : View(role);
+    }
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(string id)
+    {
+        var role = await roles.FindByIdAsync(id);
+        if (role is null) return NotFound();
+        if (IsStandardRole(role.Name)) return Forbid();
+
+        if (await roles.Roles.AnyAsync(item => item.Id == id && item.UserRoles.Any()))
+        {
+            ModelState.AddModelError(string.Empty, "Нельзя удалить роль, назначенную пользователям.");
+            return View("Delete", role);
+        }
+
+        var result = await roles.DeleteAsync(role);
+        if (result.Succeeded) return RedirectToAction(nameof(Index));
+        foreach (var error in result.Errors)
+            ModelState.AddModelError(string.Empty, error.Description);
+        return View("Delete", role);
+    }
+
+    [HttpGet]
     public IActionResult Create() => View(new CreateRoleInput());
 
     [HttpPost]

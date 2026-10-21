@@ -1,0 +1,11 @@
+@model Blog.Services.PostResponse
+@{ ViewData["Title"] = "Удаление статьи"; }
+
+<section class="container py-5">
+    <h1 class="mb-4">Удаление статьи</h1>
+    <p>Удалить статью «@Model.Title»?</p>
+    <form asp-action="DeletePost" asp-route-id="@Model.Id" method="post">
+        <button class="btn btn-danger" type="submit">Удалить</button>
+        <a class="ml-3" asp-action="Post" asp-route-id="@Model.Id">Отмена</a>
+    </form>
+</section>

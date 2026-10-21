@@ -1,0 +1,21 @@
+@model Blog.Services.UserEditResponse
+@using System.Security.Claims
+@{ ViewData["Title"] = "Пользователь"; }
+
+<section class="container py-5">
+    <h1 class="mb-4">Пользователь</h1>
+    <p><strong>Логин:</strong> @Model.UserName</p>
+    <p><strong>Имя:</strong> @Model.FirstName @Model.LastName</p>
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+         Model.Id == User.FindFirstValue(ClaimTypes.NameIdentifier))
+    {
+        <p><strong>Почта:</strong> @Model.Email</p>
+    }
+    <p><strong>Роли:</strong> @string.Join(", ", Model.Roles)</p>
+    <p><a asp-action="Edit" asp-route-id="@Model.Id">Редактировать</a></p>
+    <p><a asp-action="Delete" asp-route-id="@Model.Id">Удалить</a></p>
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin))
+    {
+        <p><a asp-action="Index">К списку пользователей</a></p>
+    }
+</section>

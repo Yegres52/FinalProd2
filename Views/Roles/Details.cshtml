@@ -1,0 +1,31 @@
+@model Blog.Models.ApplicationRole
+@{
+    ViewData["Title"] = "Роль";
+    var description = Model.Description;
+    if (string.IsNullOrWhiteSpace(description))
+    {
+        description = Model.Name switch
+        {
+            Blog.Services.RoleNames.Admin => "Полный доступ к управлению блогом.",
+            Blog.Services.RoleNames.Moderator => "Редактирование статей и комментариев.",
+            Blog.Services.RoleNames.User => "Создание и управление своими статьями, комментариями и тегами.",
+            _ => null
+        };
+    }
+}
+
+<section class="container py-5">
+    <h1 class="mb-4">@Model.Name</h1>
+    @if (!string.IsNullOrWhiteSpace(description))
+    {
+        <p>@description</p>
+    }
+    @if (Model.Name != Blog.Services.RoleNames.Admin &&
+         Model.Name != Blog.Services.RoleNames.Moderator &&
+         Model.Name != Blog.Services.RoleNames.User)
+    {
+        <p><a asp-action="Edit" asp-route-id="@Model.Id">Редактировать</a></p>
+        <p><a asp-action="Delete" asp-route-id="@Model.Id">Удалить</a></p>
+    }
+    <p><a asp-action="Index">К списку ролей</a></p>
+</section>

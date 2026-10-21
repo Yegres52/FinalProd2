@@ -1,0 +1,15 @@
+@model Blog.ViewModels.CommentTextInput
+@{
+    ViewData["Title"] = "Редактирование комментария";
+    var commentId = (int)ViewData["CommentId"]!;
+}
+
+<section class="container py-5">
+    <h1 class="h2 mb-4">Редактирование комментария</h1>
+    <form asp-action="Edit" asp-route-id="@commentId" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group"><label asp-for="Content">Комментарий</label><textarea asp-for="Content" class="form-control" rows="5" maxlength="2000"></textarea></div>
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+    </form>
+    <p class="mt-4"><a asp-action="Details" asp-route-id="@commentId">Отмена</a></p>
+</section>

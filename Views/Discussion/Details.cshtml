@@ -1,0 +1,23 @@
+@model Blog.Services.CommentDisplayResponse
+@using System.Security.Claims
+@{ ViewData["Title"] = "Комментарий"; }
+
+<section class="container py-5">
+    <h1 class="mb-4">Комментарий</h1>
+    <p>@Model.Content</p>
+    <p class="text-muted">@Model.AuthorName · @Model.CreatedAtUtc.ToString("dd.MM.yyyy HH:mm")</p>
+    <p>Статья: <a asp-controller="Catalog" asp-action="Post" asp-route-id="@Model.PostId">@Model.PostTitle</a></p>
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+         User.IsInRole(Blog.Services.RoleNames.Moderator) ||
+         Model.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+    {
+        <p><a asp-action="Edit" asp-route-id="@Model.Id">Редактировать</a></p>
+    }
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+         (!User.IsInRole(Blog.Services.RoleNames.Moderator) &&
+          Model.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+    {
+        <p><a asp-action="Delete" asp-route-id="@Model.Id">Удалить</a></p>
+    }
+    <p><a asp-action="Index">Все комментарии</a></p>
+</section>

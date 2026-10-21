@@ -1,0 +1,11 @@
+@model Blog.Services.CommentDisplayResponse
+@{ ViewData["Title"] = "Удаление комментария"; }
+
+<section class="container py-5">
+    <h1 class="mb-4">Удаление комментария</h1>
+    <p>Удалить комментарий «@Model.Content»?</p>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button class="btn btn-danger" type="submit">Удалить</button>
+        <a class="ml-3" asp-action="Details" asp-route-id="@Model.Id">Отмена</a>
+    </form>
+</section>

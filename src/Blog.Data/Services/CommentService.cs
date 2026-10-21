@@ -12,6 +12,20 @@ public class CommentService(ApplicationDbContext db) : ICommentService
                 comment.CreatedAtUtc, comment.PostId, comment.AuthorId))
             .ToListAsync();
 
+    public async Task<IReadOnlyList<CommentDisplayResponse>> GetAllForCatalogAsync() =>
+        await db.Comments.AsNoTracking().OrderByDescending(comment => comment.CreatedAtUtc)
+            .Select(comment => new CommentDisplayResponse(comment.Id, comment.Content,
+                comment.CreatedAtUtc, comment.PostId, comment.Post.Title,
+                comment.AuthorId, comment.Author.UserName ?? "Пользователь"))
+            .ToListAsync();
+
+    public async Task<CommentDisplayResponse?> GetDetailsAsync(int id) =>
+        await db.Comments.AsNoTracking().Where(comment => comment.Id == id)
+            .Select(comment => new CommentDisplayResponse(comment.Id, comment.Content,
+                comment.CreatedAtUtc, comment.PostId, comment.Post.Title,
+                comment.AuthorId, comment.Author.UserName ?? "Пользователь"))
+            .FirstOrDefaultAsync();
+
     public async Task<CommentResponse?> GetByIdAsync(int id) =>
         await db.Comments.AsNoTracking().Where(comment => comment.Id == id)
             .Select(comment => new CommentResponse(comment.Id, comment.Content,

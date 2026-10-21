@@ -37,6 +37,8 @@ public interface ITagService
 public interface ICommentService
 {
     Task<IReadOnlyList<CommentResponse>> GetAllAsync();
+    Task<IReadOnlyList<CommentDisplayResponse>> GetAllForCatalogAsync();
+    Task<CommentDisplayResponse?> GetDetailsAsync(int id);
     Task<CommentResponse?> GetByIdAsync(int id);
     Task<OperationResult<CommentResponse>> CreateAsync(SaveCommentRequest request, ActorContext actor);
     Task<OperationResult<CommentResponse>> UpdateAsync(int id, SaveCommentRequest request, ActorContext actor);

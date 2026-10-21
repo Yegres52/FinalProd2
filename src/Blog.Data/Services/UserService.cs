@@ -206,6 +206,14 @@ public class UserService(
             return OperationResult<bool>.Fail(OperationStatus.Forbidden);
         var user = await users.FindByIdAsync(id);
         if (user is null) return OperationResult<bool>.Fail(OperationStatus.NotFound);
+        if (await users.IsInRoleAsync(user, RoleNames.Admin))
+        {
+            var adminRole = await roles.FindByNameAsync(RoleNames.Admin);
+            if (adminRole is not null &&
+                await db.UserRoles.CountAsync(userRole => userRole.RoleId == adminRole.Id) <= 1)
+                return OperationResult<bool>.Fail(OperationStatus.Invalid,
+                    "Нельзя удалить последнего администратора.");
+        }
         if (!actor.IsAdmin &&
             (await db.Posts.AnyAsync(post => post.AuthorId == id) ||
              await db.Comments.AnyAsync(comment => comment.AuthorId == id) ||

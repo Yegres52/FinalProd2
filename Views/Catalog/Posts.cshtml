@@ -1,4 +1,5 @@
 @model IReadOnlyList<Blog.Services.PostListResponse>
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Статьи";
 }
@@ -44,6 +45,20 @@
                             <p class="text-muted small">@post.CreatedAtUtc.ToString("dd.MM.yyyy")</p>
                             <p>@(post.Content.Length > 160 ? post.Content[..160] + "…" : post.Content)</p>
                             <a asp-action="Post" asp-route-id="@post.Id">Читать</a>
+                            @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+                                 User.IsInRole(Blog.Services.RoleNames.Moderator) ||
+                                 (User.IsInRole(Blog.Services.RoleNames.User) &&
+                                  post.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+                            {
+                                <a class="ml-3" asp-action="EditPost" asp-route-id="@post.Id">Редактировать</a>
+                            }
+                            @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+                                 (User.IsInRole(Blog.Services.RoleNames.User) &&
+                                  !User.IsInRole(Blog.Services.RoleNames.Moderator) &&
+                                  post.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+                            {
+                                <a class="ml-3" asp-action="DeletePost" asp-route-id="@post.Id">Удалить</a>
+                            }
                         </div>
                     </article>
                 </div>

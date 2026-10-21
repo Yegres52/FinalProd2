@@ -33,6 +33,7 @@ public class CatalogController(IPostService posts, ITagService tags, ICommentSer
     {
         var actor = GetActor();
         if (actor is null) return Forbid();
+        if (actor.IsModerator && !actor.IsAdmin) return Forbid();
 
         var post = await posts.GetDetailsAsync(id);
         if (post is null) return NotFound();
@@ -143,6 +144,35 @@ public class CatalogController(IPostService posts, ITagService tags, ICommentSer
             ModelState.AddModelError(string.Empty, error);
         input.AvailableTags = await tags.GetAllAsync();
         return View(input);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]
+    public async Task<IActionResult> DeletePost(int id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+        var post = await posts.GetByIdAsync(id);
+        if (post is null) return NotFound();
+        if (!actor.IsAdmin && (actor.IsModerator || post.AuthorId != actor.Id))
+            return Forbid();
+        return View(post);
+    }
+
+    [HttpPost]
+    [ActionName("DeletePost")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]
+    public async Task<IActionResult> DeletePostConfirmed(int id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+        var result = await posts.DeleteAsync(id, actor);
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+        if (result.Status == OperationStatus.NotFound) return NotFound();
+        return result.Status == OperationStatus.Success
+            ? RedirectToAction(nameof(Posts))
+            : StatusCode(500);
     }
 
     public async Task<IActionResult> Tags() => View(await tags.GetAllWithPostCountsAsync());

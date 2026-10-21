@@ -20,6 +20,75 @@ public class AccountsController(
     public async Task<IActionResult> Index() => View(await users.GetAllForAdminAsync());
 
     [HttpGet]
+    [Authorize(Roles = RoleNames.Admin)]
+    public IActionResult Create() => View(new CreateUserInput());
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleNames.Admin)]
+    public async Task<IActionResult> Create(CreateUserInput input)
+    {
+        if (!ModelState.IsValid) return View(input);
+
+        var result = await users.RegisterAsync(new RegisterUserRequest(
+            input.UserName, input.Email, input.Password, input.FirstName, input.LastName));
+        if (result.Status == OperationStatus.Success)
+            return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
+
+        foreach (var error in result.Errors ?? ["Не удалось добавить пользователя."])
+            ModelState.AddModelError(string.Empty, error);
+        return View(input);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(string id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+        var result = await users.GetForEditAsync(id, actor);
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+        return result.Status == OperationStatus.NotFound ? NotFound() : View(result.Value);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+        var result = await users.GetForEditAsync(id, actor);
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+        return result.Status == OperationStatus.NotFound ? NotFound() : View(result.Value);
+    }
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(string id)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+        var result = await users.DeleteAsync(id, actor);
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+        if (result.Status == OperationStatus.NotFound) return NotFound();
+        if (result.Status == OperationStatus.Success)
+        {
+            if (id == actor.Id)
+            {
+                await signInManager.SignOutAsync();
+                return RedirectToAction("Index", "Home");
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        foreach (var error in result.Errors ?? ["Не удалось удалить пользователя."])
+            ModelState.AddModelError(string.Empty, error);
+        var current = await users.GetForEditAsync(id, actor);
+        return current.Status == OperationStatus.Success
+            ? View("Delete", current.Value)
+            : NotFound();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Edit(string id)
     {
         var actor = GetActor();

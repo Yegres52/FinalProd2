@@ -5,6 +5,7 @@
 
 <section class="container py-5">
     <h1 class="mb-4">Все пользователи</h1>
+    <p><a asp-action="Create">Добавить пользователя</a></p>
     @if (TempData["Success"] is string message)
     {
         <p class="text-success">@message</p>
@@ -24,7 +25,7 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h2 class="h5 card-title mb-2">
-                                <a asp-action="Edit" asp-route-id="@user.Id">@(fullName.Length > 0 ? fullName : user.UserName)</a>
+                                <a asp-action="Details" asp-route-id="@user.Id">@(fullName.Length > 0 ? fullName : user.UserName)</a>
                             </h2>
                             @if (fullName.Length > 0 && !string.IsNullOrWhiteSpace(user.UserName))
                             {
@@ -40,6 +41,10 @@
                             {
                                 <p class="text-muted mb-0">@user.Email</p>
                             }
+                            <p class="mt-3 mb-0">
+                                <a asp-action="Edit" asp-route-id="@user.Id">Редактировать</a>
+                                <a class="ml-3" asp-action="Delete" asp-route-id="@user.Id">Удалить</a>
+                            </p>
                         </div>
                     </div>
                 </div>

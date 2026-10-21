@@ -68,3 +68,7 @@ public record SaveCommentRequest(
     [Range(1, int.MaxValue)] int PostId);
 
 public record CommentResponse(int Id, string Content, DateTime CreatedAtUtc, int PostId, string AuthorId);
+
+public record CommentDisplayResponse(
+    int Id, string Content, DateTime CreatedAtUtc, int PostId,
+    string PostTitle, string AuthorId, string AuthorName);
