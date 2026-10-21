@@ -83,4 +83,44 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
             ModelState.AddModelError(nameof(request.Name), error);
         return View(request);
     }
+
+    [HttpGet]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]
+    public async Task<IActionResult> EditTag(int id)
+    {
+        var tag = await tags.GetByIdAsync(id);
+        if (tag is null) return NotFound();
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null || (!User.IsInRole(RoleNames.Admin) && tag.CreatorId != userId))
+            return Forbid();
+
+        return View(new EditTagInput { Id = tag.Id, Name = tag.Name });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]
+    public async Task<IActionResult> EditTag(int id, EditTagInput input)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null) return Forbid();
+
+        input.Id = id;
+        if (!ModelState.IsValid) return View(input);
+
+        var actor = new ActorContext(userId,
+            User.IsInRole(RoleNames.Admin), User.IsInRole(RoleNames.Moderator));
+        var result = await tags.UpdateAsync(id, new SaveTagRequest(input.Name), actor);
+        if (result.Status == OperationStatus.Success)
+            return RedirectToAction(nameof(Tags));
+        if (result.Status == OperationStatus.Forbidden)
+            return Forbid();
+        if (result.Status == OperationStatus.NotFound)
+            return NotFound();
+
+        foreach (var error in result.Errors ?? ["Не удалось сохранить тег."])
+            ModelState.AddModelError(nameof(input.Name), error);
+        return View(input);
+    }
 }
