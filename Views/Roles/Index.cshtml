@@ -1,23 +1,57 @@
 @model IReadOnlyList<Blog.Models.ApplicationRole>
 @{
-    ViewData["Title"] = "Роли";
+    ViewData["Title"] = "Все роли";
 }
 
 <section class="container py-5">
-    <h1 class="mb-4">Роли</h1>
+    <h1 class="mb-4">Все роли</h1>
     <p><a asp-action="Create">Добавить роль</a></p>
-    <ul>
-        @foreach (var role in Model)
-        {
-            <li>
-                <strong>@role.Name</strong>@if (!string.IsNullOrWhiteSpace(role.Description)) { <span>: @role.Description</span> }
-                @if (role.Name != Blog.Services.RoleNames.Admin &&
-                     role.Name != Blog.Services.RoleNames.Moderator &&
-                     role.Name != Blog.Services.RoleNames.User)
+
+    @if (Model.Count == 0)
+    {
+        <p>Ролей пока нет.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var role in Model)
+            {
+                var isStandard = role.Name == Blog.Services.RoleNames.Admin ||
+                    role.Name == Blog.Services.RoleNames.Moderator ||
+                    role.Name == Blog.Services.RoleNames.User;
+                var description = role.Description;
+                if (string.IsNullOrWhiteSpace(description))
                 {
-                    <a asp-action="Edit" asp-route-id="@role.Id">Редактировать</a>
+                    description = role.Name switch
+                    {
+                        Blog.Services.RoleNames.Admin => "Полный доступ к управлению блогом.",
+                        Blog.Services.RoleNames.Moderator => "Редактирование статей и комментариев.",
+                        Blog.Services.RoleNames.User => "Создание и управление своими статьями, комментариями и тегами.",
+                        _ => null
+                    };
                 }
-            </li>
-        }
-    </ul>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="h5 card-title">
+                                @if (isStandard)
+                                {
+                                    @role.Name
+                                }
+                                else
+                                {
+                                    <a asp-action="Edit" asp-route-id="@role.Id">@role.Name</a>
+                                }
+                            </h2>
+                            @if (!string.IsNullOrWhiteSpace(description))
+                            {
+                                <p class="text-muted mb-0">@description</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </section>
