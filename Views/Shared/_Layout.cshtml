@@ -16,7 +16,11 @@
             <nav class="mt-3" aria-label="Основное меню">
                 <a class="mr-3" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                 <a class="mr-3" asp-area="" asp-controller="Catalog" asp-action="Posts">Статьи</a>
-                <a asp-area="" asp-controller="Catalog" asp-action="Tags">Теги</a>
+                <a class="mr-3" asp-area="" asp-controller="Catalog" asp-action="Tags">Теги</a>
+                @if (User.IsInRole(Blog.Services.RoleNames.Admin))
+                {
+                    <a asp-area="" asp-controller="Roles" asp-action="Index">Роли</a>
+                }
             </nav>
         </div>
     </header>

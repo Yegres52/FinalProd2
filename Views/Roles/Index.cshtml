@@ -1,0 +1,15 @@
+@model IReadOnlyList<Blog.Models.ApplicationRole>
+@{
+    ViewData["Title"] = "Роли";
+}
+
+<section class="container py-5">
+    <h1 class="mb-4">Роли</h1>
+    <p><a asp-action="Create">Добавить роль</a></p>
+    <ul>
+        @foreach (var role in Model)
+        {
+            <li><strong>@role.Name</strong>@if (!string.IsNullOrWhiteSpace(role.Description)) { <span>: @role.Description</span> }</li>
+        }
+    </ul>
+</section>
