@@ -6,6 +6,11 @@
 <section class="container py-5">
     <h1 class="mb-4">Теги</h1>
 
+    @if (User.IsInRole(Blog.Services.RoleNames.Admin) || User.IsInRole(Blog.Services.RoleNames.User))
+    {
+        <p><a asp-action="CreateTag">Добавить тег</a></p>
+    }
+
     @if (Model.Count == 0)
     {
         <p>Тегов пока нет.</p>
