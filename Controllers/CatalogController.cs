@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Controllers;
 
-public class CatalogController(IPostService posts, ITagService tags) : Controller
+public class CatalogController(IPostService posts, ITagService tags, ICommentService comments) : Controller
 {
     public async Task<IActionResult> Posts(int? tagId)
     {
@@ -22,8 +22,36 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
 
     public async Task<IActionResult> Post(int id)
     {
-        var post = await posts.GetByIdAsync(id);
-        return post is null ? NotFound() : View(post);
+        var post = await posts.GetDetailsAsync(id);
+        return post is null ? NotFound() : View(new PostDetailsInput { Details = post });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]
+    public async Task<IActionResult> AddComment(int id, AddPostCommentInput input)
+    {
+        var actor = GetActor();
+        if (actor is null) return Forbid();
+
+        var post = await posts.GetDetailsAsync(id);
+        if (post is null) return NotFound();
+
+        if (!ModelState.IsValid)
+            return View(nameof(Post), new PostDetailsInput
+                { Details = post, CommentText = input.CommentText });
+
+        var result = await comments.CreateAsync(
+            new SaveCommentRequest(input.CommentText, id), actor);
+        if (result.Status == OperationStatus.Forbidden) return Forbid();
+        if (result.Status == OperationStatus.NotFound) return NotFound();
+        if (result.Status == OperationStatus.Success)
+            return RedirectToAction(nameof(Post), new { id });
+
+        foreach (var error in result.Errors ?? ["Не удалось сохранить комментарий."])
+            ModelState.AddModelError(nameof(input.CommentText), error);
+        return View(nameof(Post), new PostDetailsInput
+            { Details = post, CommentText = input.CommentText });
     }
 
     [HttpGet]

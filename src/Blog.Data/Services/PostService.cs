@@ -40,6 +40,31 @@ public class PostService(ApplicationDbContext db) : IPostService
                 post.CreatedAtUtc, post.AuthorId))
             .FirstOrDefaultAsync();
 
+    public async Task<PostDetailsResponse?> GetDetailsAsync(int id)
+    {
+        var post = await db.Posts.AsNoTracking()
+            .Include(item => item.Author)
+            .FirstOrDefaultAsync(item => item.Id == id);
+        if (post is null) return null;
+
+        var postTags = await db.PostTags.AsNoTracking()
+            .Where(item => item.PostId == id)
+            .OrderBy(item => item.Tag.Name)
+            .Select(item => new PostTagLinkResponse(item.TagId, item.Tag.Name))
+            .ToArrayAsync();
+        var comments = await db.Comments.AsNoTracking()
+            .Where(item => item.PostId == id)
+            .OrderBy(item => item.CreatedAtUtc)
+            .Select(item => new PostCommentDetailsResponse(
+                item.Id, item.Content, item.CreatedAtUtc,
+                item.Author.UserName ?? "Пользователь"))
+            .ToArrayAsync();
+
+        return new PostDetailsResponse(post.Id, post.Title, post.Content,
+            post.CreatedAtUtc, post.AuthorId,
+            post.Author.UserName ?? "Пользователь", postTags, comments);
+    }
+
     public async Task<OperationResult<PostEditResponse>> GetForEditAsync(int id, ActorContext actor)
     {
         var post = await db.Posts.AsNoTracking().Where(post => post.Id == id)
