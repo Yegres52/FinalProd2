@@ -1,0 +1,42 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+publish/
+
+# Local SQLite databases and journal files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local configuration and secrets
+appsettings.*.json
+!appsettings.*.example.json
+.env
+.env.*
+!.env.example
+secrets.json
+*.publishsettings
+*.pubxml.user
+
+# IDE and operating system files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.DotSettings.user
+.DS_Store
+Thumbs.db
+
+# Test output and logs
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.log

@@ -1,0 +1,37 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Blog.Services;
+
+public enum OperationStatus { Success, NotFound, Forbidden, Conflict, Invalid }
+
+public record OperationResult<T>(OperationStatus Status, T? Value = default, string[]? Errors = null)
+{
+    public static OperationResult<T> Ok(T value) => new(OperationStatus.Success, value);
+    public static OperationResult<T> Fail(OperationStatus status, params string[] errors) => new(status, default, errors);
+}
+
+public record RegisterUserRequest(
+    [Required, StringLength(256)] string UserName,
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(6)] string Password);
+
+public record UpdateUserRequest(
+    [Required, StringLength(256)] string UserName,
+    [Required, EmailAddress] string Email);
+
+public record UserResponse(string Id, string? UserName, string[] Roles);
+
+public record SavePostRequest(
+    [Required, StringLength(200)] string Title,
+    [Required] string Content);
+
+public record PostResponse(int Id, string Title, string Content, DateTime CreatedAtUtc, string AuthorId);
+
+public record SaveTagRequest([Required, StringLength(50)] string Name);
+public record TagResponse(int Id, string Name, string? CreatorId);
+
+public record SaveCommentRequest(
+    [Required, StringLength(2000)] string Content,
+    [Range(1, int.MaxValue)] int PostId);
+
+public record CommentResponse(int Id, string Content, DateTime CreatedAtUtc, int PostId, string AuthorId);

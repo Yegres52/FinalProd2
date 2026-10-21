@@ -1,0 +1,31 @@
+@model IReadOnlyList<Blog.Services.PostResponse>
+@{
+    ViewData["Title"] = "Статьи";
+}
+
+<section class="container py-5">
+    <h1 class="mb-4">Статьи</h1>
+
+    @if (Model.Count == 0)
+    {
+        <p>Статей пока нет.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var post in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <article class="card h-100">
+                        <div class="card-body">
+                            <h2 class="h5"><a asp-action="Post" asp-route-id="@post.Id">@post.Title</a></h2>
+                            <p class="text-muted small">@post.CreatedAtUtc.ToString("dd.MM.yyyy")</p>
+                            <p>@(post.Content.Length > 160 ? post.Content[..160] + "…" : post.Content)</p>
+                            <a asp-action="Post" asp-route-id="@post.Id">Читать</a>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</section>

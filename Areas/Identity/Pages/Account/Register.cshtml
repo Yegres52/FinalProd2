@@ -1,0 +1,33 @@
+@page
+@model Blog.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="h2 mb-4">Регистрация</h1>
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="form-group">
+                <label asp-for="Input.UserName">Имя пользователя</label>
+                <input asp-for="Input.UserName" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Email">Электронная почта</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Password">Пароль</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
+        <p class="text-muted mt-4 mb-0">Уже есть аккаунт? <a asp-page="/Account/Login">Войти</a></p>
+    </div>
+    </div>
+</section>
