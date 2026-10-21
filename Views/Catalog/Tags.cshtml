@@ -1,11 +1,11 @@
-@model IReadOnlyList<Blog.Services.TagResponse>
+@model IReadOnlyList<Blog.Services.TagListResponse>
 @using System.Security.Claims
 @{
     ViewData["Title"] = "Теги";
 }
 
 <section class="container py-5">
-    <h1 class="mb-4">Теги</h1>
+    <h1 class="mb-4">Все теги</h1>
 
     @if (User.IsInRole(Blog.Services.RoleNames.Admin) || User.IsInRole(Blog.Services.RoleNames.User))
     {
@@ -18,19 +18,26 @@
     }
     else
     {
-        <ul>
+        <div class="row">
             @foreach (var tag in Model)
             {
-                <li>
-                    @tag.Name
-                    @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
-                         (User.IsInRole(Blog.Services.RoleNames.User) &&
-                          tag.CreatorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
-                    {
-                        <a asp-action="EditTag" asp-route-id="@tag.Id">Редактировать</a>
-                    }
-                </li>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="h5 card-title">
+                                <a asp-action="Posts" asp-route-tagId="@tag.Id">@tag.Name</a>
+                            </h2>
+                            <p class="text-muted mb-2">Статей по тегу: @tag.PostCount</p>
+                            @if (User.IsInRole(Blog.Services.RoleNames.Admin) ||
+                                 (User.IsInRole(Blog.Services.RoleNames.User) &&
+                                  tag.CreatorId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+                            {
+                                <a asp-action="EditTag" asp-route-id="@tag.Id">Редактировать</a>
+                            }
+                        </div>
+                    </div>
+                </div>
             }
-        </ul>
+        </div>
     }
 </section>

@@ -4,7 +4,15 @@
 }
 
 <section class="container py-5">
-    <h1 class="mb-4">Статьи</h1>
+    @if (ViewData["TagName"] is string tagName)
+    {
+        <h1 class="mb-4">Статьи с тегом «@tagName»</h1>
+        <p><a asp-action="Posts">Все статьи</a></p>
+    }
+    else
+    {
+        <h1 class="mb-4">Статьи</h1>
+    }
 
     @if (User.IsInRole(Blog.Services.RoleNames.Admin) || User.IsInRole(Blog.Services.RoleNames.User))
     {

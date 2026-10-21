@@ -14,6 +14,7 @@ public interface IUserService
 public interface IPostService
 {
     Task<IReadOnlyList<PostResponse>> GetAllAsync(string? authorId);
+    Task<IReadOnlyList<PostResponse>> GetByTagAsync(int tagId);
     Task<PostResponse?> GetByIdAsync(int id);
     Task<OperationResult<PostEditResponse>> GetForEditAsync(int id, ActorContext actor);
     Task<OperationResult<PostResponse>> CreateAsync(SavePostRequest request, ActorContext actor);
@@ -24,6 +25,7 @@ public interface IPostService
 public interface ITagService
 {
     Task<IReadOnlyList<TagResponse>> GetAllAsync();
+    Task<IReadOnlyList<TagListResponse>> GetAllWithPostCountsAsync();
     Task<TagResponse?> GetByIdAsync(int id);
     Task<OperationResult<TagResponse>> CreateAsync(SaveTagRequest request, ActorContext actor);
     Task<OperationResult<TagResponse>> UpdateAsync(int id, SaveTagRequest request, ActorContext actor);

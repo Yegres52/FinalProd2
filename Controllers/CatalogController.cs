@@ -8,7 +8,16 @@ namespace Blog.Controllers;
 
 public class CatalogController(IPostService posts, ITagService tags) : Controller
 {
-    public async Task<IActionResult> Posts() => View(await posts.GetAllAsync(null));
+    public async Task<IActionResult> Posts(int? tagId)
+    {
+        if (tagId is null) return View(await posts.GetAllAsync(null));
+
+        var tag = await tags.GetByIdAsync(tagId.Value);
+        if (tag is null) return NotFound();
+
+        ViewData["TagName"] = tag.Name;
+        return View(await posts.GetByTagAsync(tag.Id));
+    }
 
     public async Task<IActionResult> Post(int id)
     {
@@ -107,7 +116,7 @@ public class CatalogController(IPostService posts, ITagService tags) : Controlle
         return View(input);
     }
 
-    public async Task<IActionResult> Tags() => View(await tags.GetAllAsync());
+    public async Task<IActionResult> Tags() => View(await tags.GetAllWithPostCountsAsync());
 
     [HttpGet]
     [Authorize(Roles = RoleNames.Admin + "," + RoleNames.User)]

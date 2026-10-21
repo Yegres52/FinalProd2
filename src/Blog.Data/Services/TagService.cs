@@ -11,6 +11,12 @@ public class TagService(ApplicationDbContext db) : ITagService
         await db.Tags.AsNoTracking().OrderBy(tag => tag.Name)
             .Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatorId)).ToListAsync();
 
+    public async Task<IReadOnlyList<TagListResponse>> GetAllWithPostCountsAsync() =>
+        await db.Tags.AsNoTracking().OrderBy(tag => tag.Name)
+            .Select(tag => new TagListResponse(tag.Id, tag.Name, tag.CreatorId,
+                tag.PostTags.Count))
+            .ToListAsync();
+
     public async Task<TagResponse?> GetByIdAsync(int id) =>
         await db.Tags.AsNoTracking().Where(tag => tag.Id == id)
             .Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatorId)).FirstOrDefaultAsync();

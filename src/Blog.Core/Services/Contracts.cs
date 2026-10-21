@@ -47,6 +47,7 @@ public record PostEditResponse(int Id, string Title, string Content, string Auth
 
 public record SaveTagRequest([Required, StringLength(50)] string Name);
 public record TagResponse(int Id, string Name, string? CreatorId);
+public record TagListResponse(int Id, string Name, string? CreatorId, int PostCount);
 
 public record SaveCommentRequest(
     [Required, StringLength(2000)] string Content,
