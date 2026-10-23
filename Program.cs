@@ -23,6 +23,7 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/errors/403");
 builder.Services.AddControllersWithViews();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
