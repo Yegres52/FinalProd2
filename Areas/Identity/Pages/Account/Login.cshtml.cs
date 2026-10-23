@@ -17,10 +17,10 @@ public class LoginModel(
 
     public class InputModel
     {
-        [Required]
+        [Required(ErrorMessage = "Введите логин или почту.")]
         public string Login { get; set; } = string.Empty;
 
-        [Required, DataType(DataType.Password)]
+        [Required(ErrorMessage = "Введите пароль."), DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
     }
 

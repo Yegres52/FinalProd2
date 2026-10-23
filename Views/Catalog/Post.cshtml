@@ -63,7 +63,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <div class="form-group">
                 <label asp-for="CommentText">Ваш комментарий</label>
-                <textarea asp-for="CommentText" class="form-control" rows="4" maxlength="2000"></textarea>
+                <textarea asp-for="CommentText" class="form-control" rows="4" maxlength="2000" required></textarea>
                 <span asp-validation-for="CommentText" class="text-danger small"></span>
             </div>
             <button type="submit" class="btn btn-primary">Оставить комментарий</button>

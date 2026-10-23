@@ -12,27 +12,27 @@
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <div class="form-group">
                 <label asp-for="Input.UserName">Логин</label>
-                <input asp-for="Input.UserName" class="form-control" autocomplete="username" />
+                <input asp-for="Input.UserName" class="form-control" maxlength="256" autocomplete="username" required />
                 <span asp-validation-for="Input.UserName" class="text-danger small"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.FirstName">Имя</label>
-                <input asp-for="Input.FirstName" class="form-control" autocomplete="given-name" />
+                <input asp-for="Input.FirstName" class="form-control" maxlength="100" autocomplete="given-name" required />
                 <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.LastName">Фамилия</label>
-                <input asp-for="Input.LastName" class="form-control" autocomplete="family-name" />
+                <input asp-for="Input.LastName" class="form-control" maxlength="100" autocomplete="family-name" required />
                 <span asp-validation-for="Input.LastName" class="text-danger small"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Email">Электронная почта</label>
-                <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+                <input asp-for="Input.Email" class="form-control" type="email" maxlength="256" autocomplete="email" required />
                 <span asp-validation-for="Input.Email" class="text-danger small"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Password">Пароль</label>
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+                <input asp-for="Input.Password" class="form-control" minlength="6" autocomplete="new-password" required />
                 <span asp-validation-for="Input.Password" class="text-danger small"></span>
             </div>
             <button type="submit" class="btn btn-primary">Зарегистрироваться</button>

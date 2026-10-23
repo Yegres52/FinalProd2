@@ -5,12 +5,32 @@
     <div class="row justify-content-center"><div class="col-md-6">
         <h1 class="h2 mb-4">Добавление пользователя</h1>
         <form asp-action="Create" method="post">
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
-            <div class="form-group"><label asp-for="UserName">Логин</label><input asp-for="UserName" class="form-control" /></div>
-            <div class="form-group"><label asp-for="FirstName">Имя</label><input asp-for="FirstName" class="form-control" /></div>
-            <div class="form-group"><label asp-for="LastName">Фамилия</label><input asp-for="LastName" class="form-control" /></div>
-            <div class="form-group"><label asp-for="Email">Почта</label><input asp-for="Email" class="form-control" type="email" /></div>
-            <div class="form-group"><label asp-for="Password">Пароль</label><input asp-for="Password" class="form-control" type="password" /></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="form-group">
+                <label asp-for="UserName">Логин</label>
+                <input asp-for="UserName" class="form-control" maxlength="256" autocomplete="username" required />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FirstName">Имя</label>
+                <input asp-for="FirstName" class="form-control" maxlength="100" autocomplete="given-name" required />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName">Фамилия</label>
+                <input asp-for="LastName" class="form-control" maxlength="100" autocomplete="family-name" required />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email">Почта</label>
+                <input asp-for="Email" class="form-control" type="email" maxlength="256" autocomplete="email" required />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password">Пароль</label>
+                <input asp-for="Password" class="form-control" type="password" minlength="6" autocomplete="new-password" required />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
             <button class="btn btn-primary" type="submit">Добавить</button>
         </form>
         <p class="mt-4"><a asp-action="Index">К списку пользователей</a></p>

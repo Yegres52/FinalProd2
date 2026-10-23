@@ -37,22 +37,22 @@
 
                 <div class="form-group">
                     <label asp-for="UserName">Логин</label>
-                    <input asp-for="UserName" class="form-control" />
+                    <input asp-for="UserName" class="form-control" maxlength="256" required />
                     <span asp-validation-for="UserName" class="text-danger small"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="FirstName">Имя</label>
-                    <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
+                    <input asp-for="FirstName" class="form-control" maxlength="100" autocomplete="given-name" required />
                     <span asp-validation-for="FirstName" class="text-danger small"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="LastName">Фамилия</label>
-                    <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+                    <input asp-for="LastName" class="form-control" maxlength="100" autocomplete="family-name" required />
                     <span asp-validation-for="LastName" class="text-danger small"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Email">Почтовый адрес</label>
-                    <input asp-for="Email" class="form-control" autocomplete="email" />
+                    <input asp-for="Email" class="form-control" type="email" maxlength="256" autocomplete="email" required />
                     <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
                 @if (Model.IsSelf)
@@ -60,11 +60,12 @@
                     <div class="form-group">
                         <label asp-for="CurrentPassword">Текущий пароль (для смены пароля)</label>
                         <input asp-for="CurrentPassword" type="password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
                     </div>
                 }
                 <div class="form-group">
                     <label asp-for="NewPassword">Новый пароль (необязательно)</label>
-                    <input asp-for="NewPassword" type="password" class="form-control" autocomplete="new-password" />
+                    <input asp-for="NewPassword" type="password" class="form-control" minlength="6" autocomplete="new-password" />
                     <span asp-validation-for="NewPassword" class="text-danger small"></span>
                 </div>
                 <button type="submit" class="btn btn-primary">Сохранить</button>

@@ -125,6 +125,9 @@ public class AccountsController(
 
         input.Id = id;
         await PopulateRoleOptionsAsync(input, actor, current.Value!.Roles);
+        if (input.IsSelf && !string.IsNullOrWhiteSpace(input.NewPassword) &&
+            string.IsNullOrWhiteSpace(input.CurrentPassword))
+            ModelState.AddModelError(nameof(input.CurrentPassword), "Введите текущий пароль.");
         if (!ModelState.IsValid) return View(input);
 
         var request = new UpdateUserRequest(input.UserName, input.Email,

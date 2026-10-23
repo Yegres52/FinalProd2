@@ -59,7 +59,10 @@ public record PostDetailsResponse(
     string AuthorId, string AuthorName, PostTagLinkResponse[] Tags,
     PostCommentDetailsResponse[] Comments);
 
-public record SaveTagRequest([Required, StringLength(50)] string Name);
+public record SaveTagRequest(
+    [Required(ErrorMessage = "Введите название тега.")]
+    [StringLength(50, ErrorMessage = "Название не должно быть длиннее 50 символов.")]
+    string Name);
 public record TagResponse(int Id, string Name, string? CreatorId);
 public record TagListResponse(int Id, string Name, string? CreatorId, int PostCount);
 
